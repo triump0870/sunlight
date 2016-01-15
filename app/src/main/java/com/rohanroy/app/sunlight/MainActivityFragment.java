@@ -1,5 +1,6 @@
 package com.rohanroy.app.sunlight;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -97,7 +99,7 @@ public class MainActivityFragment extends Fragment {
                 R.layout.list_item_forecast,
                 //ID of the Textview to populate the data
                 R.id.list_item_forecast_textview,
-                //Forecast data
+                // Forecast data
                 weekForecast
         );
 
@@ -108,6 +110,15 @@ public class MainActivityFragment extends Fragment {
                 R.id.listview_forecast
         );
         forecastListView.setAdapter(mForecastAdapter);
+        forecastListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String forecast = mForecastAdapter.getItem(position);
+                Intent detailIntent = new Intent(getContext(), DetailActivity.class)
+                        .putExtra(Intent.EXTRA_TEXT, forecast);
+                startActivity(detailIntent);
+            }
+        });
         return rootView;
     }
 
@@ -130,7 +141,6 @@ public class MainActivityFragment extends Fragment {
 
             //Will contain the raw JSON data response as a string;
             String forecastJsonStr = null;
-            String format = "json";
             String units = "metric";
             int numDays = 7;
             try
@@ -182,9 +192,7 @@ public class MainActivityFragment extends Fragment {
                     return null;
                 }
                 forecastJsonStr = buffer.toString();
-                Log.v(LOG_TAG, "Forecast JSON String: " + forecastJsonStr);
             } catch (IOException e) {
-                Log.e("MainActivityFragment", "Error ", e);
                 // If the coe didn't successfully get the weather data,
                 // there is no point to parse it.
                 return null;
@@ -196,7 +204,6 @@ public class MainActivityFragment extends Fragment {
                     try {
                         reader.close();
                     } catch (final IOException e) {
-                        Log.e("MainActivityFragment", "Error closing stream", e);
                     }
                 }
             }
@@ -311,9 +318,6 @@ public class MainActivityFragment extends Fragment {
                 resultStrs[i] = day + " - " + description + " - " + highAndLow;
             }
 
-            for (String s : resultStrs) {
-                Log.v(LOG_TAG, "Forecast entry: " + s);
-            }
             return resultStrs;
         }
     }
